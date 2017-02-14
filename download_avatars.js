@@ -27,23 +27,34 @@ function getRepoContributors(repoOwner, repoName, cb) {
     if(err){
       return cb(err);
     }
-    var contributors = body.map(avatarArray);
-    function downloadImageByURL(url, filePath) {
-      request.get(url)               // Note 1
-        .on('error', function (err) {                                   // Note 2
-          throw err;
-        })
-        .on('response', function (response) {                           // Note 3
-          console.log('Response Status Code: ', response.statusCode);
-        })
-        .pipe(fs.createWriteStream('./kvirani.jpg'));
+    if(!(body instanceof Array)) {
+    return cb(body);
     }
-    downloadImageByURL("https://avatars2.githubusercontent.com/u/2741?v=3&s=466", "avatars/kvirani.jpg")
+    var contributors = body.map(avatarArray);
+    cb(null, contributors);
   })
 }
 
+function downloadImageByURL(url, filePath) {
+  var stream = fs.createWriteStream('./avatarPic/' + url.name + '.jpg');
+  request.get(url.avatarUrl)               // Note 1
+    .on('error', function (err) {                                   // Note 2
+      throw err;
+    })
+    .on('response', function (response) {                           // Note 3
+      console.log('Response Status Code: ', response.statusCode, 'downloading~~~');
+    })
+    .pipe(stream);
+}
+
 getRepoContributors("jquery", "jquery", function(err, result) {
-  console.log("Errors:", err);
-  console.log("Result:", result);
+  if(err) {
+    console.log("Errors:", err);
+    return;
+  }
+  result.forEach(function(user) {
+    downloadImageByURL(user);
+  });
 });
+
 
