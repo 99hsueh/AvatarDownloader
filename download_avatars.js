@@ -47,7 +47,11 @@ function downloadImageByURL(url, filePath) {
     .pipe(stream);
 }
 
-getRepoContributors("jquery", "jquery", function(err, result) {
+getRepoContributors(process.argv[2], process.argv[3], function(err, result) {
+  if (!(process.argv[2] || process.argv[3])){
+    console.log("Please enter: repoOwner, repoName before proceeding.");
+    return;
+  }
   if(err) {
     console.log("Errors:", err);
     return;
