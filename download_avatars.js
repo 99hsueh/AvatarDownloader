@@ -13,18 +13,25 @@ var request = require('request').defaults({
 
 console.log('Welcome to the GitHub Avatar Downloader');
 
-function getRepoContributors(repoOwner, repoName, cb) {
-var requestURL = 'https://'+ GITHUB_USER + ':' + GITHUB_TOKEN + '@api.github.com/repos/' + repoOwner + '/' + repoName + '/contributors';
-console.log(requestURL);
-
-request.get(requestURL)               // Note 1
-       .on('error', function (err) {                                   // Note 2
-         throw err;
-       })
-       .on('response', function (response) {                           // Note 3
-         console.log('Response Status Code: ', response.statusCode);
-       })
+function avatarArray(user) {
+  return {
+    name: user.login,
+    avatarUrl: user.avatar_url
+  };
 }
+
+function getRepoContributors(repoOwner, repoName, cb) {
+  var requestURL = 'https://'+ GITHUB_USER + ':' + GITHUB_TOKEN + '@api.github.com/repos/' + repoOwner + '/' + repoName + '/contributors';
+  var contributors;
+  request.get(requestURL, function(err, response, body){
+    if(err){
+      return cb(err);
+    }
+    var contributors = body.map(avatarArray);
+    console.log(contributors);
+  })
+}
+
 
 getRepoContributors("jquery", "jquery", function(err, result) {
   console.log("Errors:", err);
